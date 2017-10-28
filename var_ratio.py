@@ -1,9 +1,6 @@
 from __future__ import print_function
 from keras.datasets import mnist
 from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Activation, Flatten
-from keras.layers.convolutional import Conv2D, MaxPooling2D
-from keras.optimizers import SGD, Adadelta, Adagrad, Adam
 from keras.utils import np_utils, generic_utils
 from six.moves import range
 import numpy as np
@@ -11,9 +8,9 @@ import scipy as sp
 from keras import backend as K  
 import random
 import scipy.io
-# import matplotlib.pyplot as plt
-from keras.regularizers import l2 #, activity_l2
 from scipy.stats import mode
+# custom module for cnn model
+from cnn_architecture2 import *
 
 batch_size = 128
 nb_classes = 10
@@ -22,12 +19,6 @@ nb_epoch = 50
 # input image dimensions
 img_rows, img_cols = 28, 28
 input_shape = (img_rows, img_cols, 1)
-# number of convolutional filters to use
-nb_filters = 32
-# size of pooling area for max pooling
-nb_pool = 2
-# convolution kernel size
-nb_conv = 4
 
 score=0
 all_accuracy = 0
@@ -92,34 +83,6 @@ Y_Pool = np_utils.to_categorical(y_Pool, nb_classes)
 Pool_Train_Acc = np.zeros(shape=(nb_epoch, 1)) 
 #x_pool_All = np.zeros(shape=(1))
 
-model = Sequential()
-model.add(Conv2D(nb_filters, (nb_conv, nb_conv),
-                 padding='valid',
-                 activation='relu', 
-                 input_shape=input_shape))
-
-model.add(Conv2D(nb_filters, (nb_conv, nb_conv), activation='relu'))
-
-model.add(MaxPooling2D(pool_size=(nb_pool, nb_pool)))
-model.add(Dropout(0.25))
-
-model.add(Conv2D(nb_filters*2, (nb_conv, nb_conv), 
-                 padding='valid',
-                 activation='relu'))
-
-model.add(Conv2D(nb_filters*2, (nb_conv, nb_conv), activation='relu'))
-
-model.add(MaxPooling2D(pool_size=(nb_pool, nb_pool)))
-model.add(Dropout(0.25))
-
-c = 2.5
-Weight_Decay = c / float(X_train.shape[0])
-model.add(Flatten())
-model.add(Dense(128, kernel_regularizer=l2(Weight_Decay), activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(nb_classes, activation='softmax'))
-
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 hist = model.fit(X_train, Y_train, batch_size=batch_size, epochs=nb_epoch, verbose=0)
 Train_Result_Optimizer = hist.history
 #Train_Loss = np.asarray(Train_Result_Optimizer.get('loss'))
@@ -182,17 +145,8 @@ for i in range(acquisition_iterations):
                      #validation_data=(X_valid, Y_valid))
     
     Train_Result_Optimizer = hist.history
-    #Train_Loss = np.asarray(Train_Result_Optimizer.get('loss'))
-    #Train_Loss = np.array([Train_Loss]).T
-    #Valid_Loss = np.asarray(Train_Result_Optimizer.get('val_loss'))
-    #Valid_Loss = np.asarray([Valid_Loss]).T
     Train_Acc = np.asarray(Train_Result_Optimizer.get('acc'))
     Train_Acc = np.array([Train_Acc]).T
-    
-    #Accumulate the training and validation/test loss after every pooling iteration - for plotting
-    #Pool_Valid_Loss = np.append(Pool_Valid_Loss, Valid_Loss, axis=1)
-    #Pool_Train_Loss = np.append(Pool_Train_Loss, Train_Loss, axis=1)
-    #Pool_Valid_Acc = np.append(Pool_Valid_Acc, Valid_Acc, axis=1)
     Pool_Train_Acc = np.append(Pool_Train_Acc, Train_Acc, axis=1)	
 
 
