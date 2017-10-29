@@ -55,7 +55,7 @@ for index in range(10):
     y = y_train_All[idx]
     
     X_train = np.concatenate((X_train, X), axis=0 ) if X_train.size else X
-    y_train = np.concatenate((y_train, y), axis=0 ) if X_train.size else y
+    y_train = np.concatenate((y_train, y), axis=0 ) if y_train.size else y
 
 
 print('X_train shape:', X_train.shape)
